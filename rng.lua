@@ -1,4 +1,4 @@
-local MAXINT <const> = 4294967296
+local MAXINT <const> = ~0 >> 1
 local function xorshift(x)
     x = x ~ x << 13
     x = x ~ x >> 17
@@ -26,7 +26,7 @@ end
 function RNG:random(a, b)
     self.seed = xorshift(self.seed)
     if not a then
-        return self.seed / MAXINT + 0.5
+        return self.seed / MAXINT / 2 + 0.5
     elseif not b then
         return self.seed % a + 1
     else
