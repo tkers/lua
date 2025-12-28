@@ -1,4 +1,5 @@
 local MAXINT <const> = ~0 >> 1
+
 local function xorshift(x)
     x = x ~ x << 13
     x = x ~ x >> 17
@@ -11,26 +12,28 @@ RNG.__index = RNG
 
 function RNG.new(seed)
     local self = setmetatable({}, RNG)
-    self.seed = seed
+    self:seed(seed or 1)
     return self
 end
 
-function RNG:setSeed(seed)
-    self.seed = seed
+function RNG:seed(seed)
+    self.state = seed * 23456789
 end
 
-function RNG:getSeed()
-    return self.seed
+function RNG:next()
+    local x = xorshift(self.state)
+    self.state = x
+    return x
 end
 
 function RNG:random(a, b)
-    self.seed = xorshift(self.seed)
+    local x = self:next()
     if not a then
-        return self.seed / MAXINT / 2 + 0.5
+        return x / MAXINT / 2 + 0.5
     elseif not b then
-        return self.seed % a + 1
+        return x % a + 1
     else
-        return self.seed % (b - a + 1) + a
+        return x % (b - a + 1) + a
     end
 end
 
